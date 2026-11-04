@@ -9,42 +9,82 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    /**
+     * Tampilkan halaman form login.
+     */
     public function showLoginForm()
     {
-        return view('login');
+        return view('auth.login');
     }
 
+    /**
+     * Proses autentikasi login pengguna.
+     */
     public function login(Request $request)
     {
-        $request->validate([
+        $credentials = $request->validate([
             'email'    => 'required|email',
-            'password' => 'required|string',
+            'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
-
-        if ($user && Hash::check($request->password, $user->password)) {
-            Auth::login($user, $request->filled('remember'));
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            if ($user->role === 'admin') {
-                return redirect()->intended('/admin/dashboard');
+            // Arahkan berdasarkan peran (role) pengguna
+            if (Auth::user()->role === 'admin') {
+                return redirect()->route('admin.dashboard')->with('success', 'Selamat datang kembali, Admin!');
             }
 
-            return redirect()->intended('/siswa/dashboard');
+            return redirect()->route('siswa.dashboard')->with('success', 'Berhasil masuk ke dashboard siswa.');
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
+            'email' => 'Email atau password yang Anda masukkan salah.',
         ])->onlyInput('email');
     }
 
+    /**
+     * Tampilkan halaman form register siswa.
+     */
+    public function showRegisterForm()
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Proses pendaftaran akun siswa baru.
+     */
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user = User::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'role'     => 'siswa', // Otomatis mendaftar sebagai peran siswa
+        ]);
+
+        // Langsung loginkan pengguna setelah berhasil mendaftar
+        Auth::login($user);
+
+        return redirect()->route('siswa.dashboard')->with('success', 'Akun berhasil dibuat! Selamat datang di eDoc Akademik.');
+    }
+
+    /**
+     * Proses logout pengguna.
+     */
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect()->route('login')->with('success', 'Anda telah berhasil keluar dari sistem.');
     }
 }

@@ -45,6 +45,10 @@
                 </button>
             </form>
 
+            <div class="text-center text-xs text-slate-500 pt-1">
+                Belum punya akun? <a href="{{ route('register') }}" class="text-blue-600 font-bold hover:underline">Daftar di sini</a>
+            </div>
+
             <div class="text-center text-xs text-slate-400 pt-2">
                 <p>SMKN 5 Surakarta &copy; 2026</p>
             </div>
