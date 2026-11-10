@@ -18,7 +18,7 @@
     <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <span class="bg-blue-700 text-white font-bold text-xs px-2.5 py-1 rounded-lg">eDoc</span>
+                <img src="{{ asset('images/logo-edoc.png') }}" alt="eDoc Akademik" class="h-7 w-auto">
                 <h1 class="font-bold text-sm sm:text-base">Pengaturan Profil</h1>
             </div>
             <a href="{{ Auth::user()->role === 'admin' ? route('admin.dashboard') : route('siswa.dashboard') }}" class="bg-blue-800 hover:bg-blue-700 active:scale-95 text-white px-3.5 py-1.5 rounded-xl text-xs font-medium transition duration-150">

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - eDoc Akademik</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-edoc.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes fadeIn {
@@ -19,17 +20,17 @@
         <!-- Sisi Form Login -->
         <div class="p-6 sm:p-10 md:p-12 flex flex-col justify-center space-y-6">
             <div>
-                <span class="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full font-bold tracking-wide uppercase">eDoc Akademik</span>
-                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-3">Selamat Datang</h2>
+                <img src="{{ asset('images/logo-edoc.png') }}" alt="Logo eDoc Akademik - Manajemen Dokumen Akademik" class="h-20 sm:h-24 w-auto">
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-4">Selamat Datang</h2>
                 <p class="text-xs sm:text-sm text-slate-500 mt-1">Silakan masuk menggunakan akun terdaftar Anda.</p>
             </div>
-
+ 
             @if($errors->any())
                 <div class="bg-rose-50 border-l-4 border-rose-500 text-rose-700 p-3 rounded-r-lg text-xs animate-pulse">
                     {{ $errors->first() }}
                 </div>
             @endif
-
+ 
             <form action="{{ route('login.post') }}" method="POST" class="space-y-4">
                 @csrf
                 <div>
@@ -44,16 +45,16 @@
                     Masuk Sekarang
                 </button>
             </form>
-
+ 
             <div class="text-center text-xs text-slate-500 pt-1">
                 Belum punya akun? <a href="{{ route('register') }}" class="text-blue-600 font-bold hover:underline">Daftar di sini</a>
             </div>
-
+ 
             <div class="text-center text-xs text-slate-400 pt-2">
                 <p>SMKN 5 Surakarta &copy; 2026</p>
             </div>
         </div>
-
+ 
         <!-- Sisi Visual Banner (Tersembunyi di HP kecil, Muncul di Tablet/Desktop) -->
         <div class="relative hidden md:flex flex-col justify-between bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 p-10 text-white overflow-hidden">
             <div class="absolute inset-0">

@@ -4,13 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - eDoc Akademik</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+ 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Warna diambil langsung dari logo eDoc Akademik
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            navy: '#062254',      // "eDoc" + ikon
+                            navyhover: '#0A3170',
+                            teal: '#04B59B',      // "Akademik" + kuncir toga
+                            tealdark: '#028572',  // untuk tombol (kontras teks putih >= 4.5:1)
+                            tealdarker: '#026B5C',
+                            tealsoft: '#E6F8F5',
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @media (prefers-reduced-motion: reduce) {
+            .animate-fade-in { animation: none; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800">
@@ -18,7 +51,9 @@
     <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3">
             <div class="flex items-center space-x-3">
-                <span class="bg-blue-700 text-white font-bold text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider">Admin</span>
+                <div>
+                    <img src="{{ asset('images/logo-edoc.png') }}" alt="eDoc Akademik" class="h-7 w-auto">
+                </div>
                 <h1 class="font-bold text-base sm:text-lg tracking-tight">eDoc Admin Control</h1>
             </div>
             
@@ -33,7 +68,7 @@
             </div>
         </div>
     </nav>
-
+ 
     <!-- Konten Utama -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 animate-fade-in">
         @if(session('success'))
@@ -41,7 +76,7 @@
                 {{ session('success') }}
             </div>
         @endif
-
+ 
         <!-- Widget Statistik Kartu Ringkas -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
@@ -73,7 +108,32 @@
                 <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center font-bold">✅</div>
             </div>
         </div>
-
+ 
+        <!-- Bagian Grafik Multimedia -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Grafik Status Pengajuan (Doughnut Chart) -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-sm font-bold text-brand-navy mb-1">Persentase Status Pengajuan</h2>
+                    <p class="text-xs text-slate-400 mb-4">Distribusi berdasarkan alur proses dokumen</p>
+                </div>
+                <div class="relative flex justify-center items-center h-48">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+ 
+            <!-- Grafik Perbandingan Jumlah (Bar Chart) -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 md:col-span-2 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-sm font-bold text-brand-navy mb-1">Perbandingan Volume Pengajuan</h2>
+                    <p class="text-xs text-slate-400 mb-4">Ringkasan kuantitas dokumen akademik per kategori</p>
+                </div>
+                <div class="relative h-48 w-full">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+        </div>
+ 
         <!-- Bagian Filter & Pencarian (Live Search) -->
         <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
             <!-- Form Pencarian -->
@@ -81,21 +141,21 @@
                 @if(request('status'))
                     <input type="hidden" name="status" value="{{ request('status') }}">
                 @endif
-                <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari No. / Nama Siswa..." class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition">Cari</button>
+                <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari No. / Nama Siswa..." class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs bg-slate-50 focus:bg-white focus:ring-2 focus:ring-brand-teal focus:border-brand-teal outline-none transition">
+                <button type="submit" class="bg-brand-tealdark hover:bg-brand-tealdarker text-white px-4 py-2 rounded-xl text-xs font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-teal">Cari</button>
             </form>
-
+ 
             <!-- Filter Status Tab -->
             <div class="w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
                 <div class="inline-flex space-x-1 bg-slate-100 p-1 rounded-xl">
-                    <a href="{{ route('admin.dashboard', ['search' => request('search')]) }}" class="px-3 py-1.5 text-xs rounded-lg font-semibold transition whitespace-nowrap {{ request('status') == '' ? 'bg-white text-blue-900 shadow-sm' : 'text-slate-600' }}">Semua</a>
+                    <a href="{{ route('admin.dashboard', ['search' => request('search')]) }}" class="px-3 py-1.5 text-xs rounded-lg font-semibold transition whitespace-nowrap {{ request('status') == '' ? 'bg-white text-brand-navy shadow-sm' : 'text-slate-600' }}">Semua</a>
                     <a href="{{ route('admin.dashboard', ['status' => 'Pending', 'search' => request('search')]) }}" class="px-3 py-1.5 text-xs rounded-lg font-semibold transition whitespace-nowrap {{ request('status') == 'Pending' ? 'bg-amber-500 text-white shadow-sm' : 'text-slate-600' }}">Pending</a>
                     <a href="{{ route('admin.dashboard', ['status' => 'Diproses', 'search' => request('search')]) }}" class="px-3 py-1.5 text-xs rounded-lg font-semibold transition whitespace-nowrap {{ request('status') == 'Diproses' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600' }}">Diproses</a>
                     <a href="{{ route('admin.dashboard', ['status' => 'Selesai', 'search' => request('search')]) }}" class="px-3 py-1.5 text-xs rounded-lg font-semibold transition whitespace-nowrap {{ request('status') == 'Selesai' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600' }}">Selesai</a>
                 </div>
             </div>
         </div>
-
+ 
         <!-- Tabel Pengajuan -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 sm:p-6 overflow-hidden">
             <div class="overflow-x-auto">
@@ -160,5 +220,75 @@
             </div>
         </div>
     </main>
+ 
+    <!-- Script Inisialisasi Chart.js -->
+    <script>
+        const pendingCount = {{ $stats['pending'] ?? 0 }};
+        const diprosesCount = {{ $stats['diproses'] ?? 0 }};
+        const selesaiCount = {{ $stats['selesai'] ?? 0 }};
+ 
+        Chart.defaults.font.family = "'Poppins', ui-sans-serif, system-ui, sans-serif";
+ 
+        // 1. Doughnut Chart (Status Pengajuan)
+        const ctxDoughnut = document.getElementById('statusChart').getContext('2d');
+        new Chart(ctxDoughnut, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'Diproses', 'Selesai'],
+                datasets: [{
+                    data: [pendingCount, diprosesCount, selesaiCount],
+                    backgroundColor: ['#f59e0b', '#2563eb', '#10b981'],
+                    borderWidth: 0,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 12, font: { size: 11 } }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+ 
+        // 2. Bar Chart (Perbandingan Jumlah)
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: ['Pending', 'Diproses', 'Selesai'],
+                datasets: [{
+                    label: 'Jumlah Pengajuan',
+                    data: [pendingCount, diprosesCount, selesaiCount],
+                    backgroundColor: ['#fef3c7', '#dbeafe', '#d1fae5'],
+                    borderColor: ['#f59e0b', '#2563eb', '#10b981'],
+                    borderWidth: 1.5,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, precision: 0, font: { size: 11 } },
+                        grid: { borderDash: [4, 4] }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
